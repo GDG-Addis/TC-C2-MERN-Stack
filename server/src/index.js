@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
+const path = require("path");
 
 const userRouter = require("./routes/user");
 const bookRouter = require("./routes/book");
@@ -32,6 +33,7 @@ if (process.env.NODE_ENV == "development") {
 }
 
 app.use(express.json());
+app.use(express.static(path.join(__dirname, "../public")));
 
 /**
  * Route Middleware

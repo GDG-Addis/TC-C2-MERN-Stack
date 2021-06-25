@@ -15,6 +15,7 @@ router
   .get(verifyUser, bookController.getAllBooks)
   .post(
     verifyUser,
+    bookController.uploadImage,
     bookValidation.validate("CREATE"),
     bookController.createBook
   );

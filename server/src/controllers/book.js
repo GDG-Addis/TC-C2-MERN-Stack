@@ -1,5 +1,23 @@
 const Book = require("../models/book");
 const { validationResult } = require("express-validator");
+const multer = require("multer");
+const path = require("path");
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, path.join(__dirname, "../../public/img"));
+  },
+  filename: function (req, file, cb) {
+    cb(null, `book-${Date.now()}-cover${path.extname(file.originalname)}`);
+  },
+});
+
+const upload = multer({
+  storage,
+});
+
+exports.uploadImage = upload.single("img");
+
 /**
  *
  * @param {Object} req
@@ -15,9 +33,28 @@ exports.getAllBooks = async (req, res, next) => {
         message: errors.array()[0].msg,
       });
     }
-    res.json({
+    const page = req.query.page * 1 || 1;
+    const limit = req.query.limit * 1 || 10;
+    const result = await Book.paginate(
+      {
+        $or: [
+          {
+            creator: { $eq: req.user._id },
+          },
+          {
+            authors: { $eq: req.user._id },
+          },
+        ],
+      },
+      {
+        page,
+        limit,
+        sort: "-createdAt",
+      }
+    );
+    res.status(200).json({
       status: "success",
-      user: req.user,
+      result,
     });
   } catch (err) {
     //TODO
@@ -39,9 +76,16 @@ exports.getBook = async (req, res, next) => {
         message: errors.array()[0].msg,
       });
     }
-    res.json({
+    const book = await Book.findById(req.params.id).populate("authors");
+    if (!book) {
+      res.status(404).json({
+        status: "error",
+        message: "Book with this ID does not exist",
+      });
+    }
+    res.status(200).json({
       status: "success",
-      user: req.user,
+      book,
     });
   } catch (err) {
     //TODO
@@ -63,9 +107,15 @@ exports.createBook = async (req, res, next) => {
         message: errors.array()[0].msg,
       });
     }
-    res.json({
+    const book = await Book.create({
+      ...req.body,
+      img: req.file.filename,
+      creator: req.user._id,
+      authors: [req.user._id],
+    });
+    res.status(201).json({
       status: "success",
-      user: req.user,
+      book,
     });
   } catch (err) {
     //TODO
@@ -87,9 +137,19 @@ exports.updateBook = async (req, res, next) => {
         message: errors.array()[0].msg,
       });
     }
-    res.json({
+    const book = await Book.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      populate: "authors",
+    });
+    if (!book) {
+      res.status(404).json({
+        status: "error",
+        message: "Book with this ID does not exist",
+      });
+    }
+    res.status(200).json({
       status: "success",
-      user: req.user,
+      book,
     });
   } catch (err) {
     //TODO
@@ -111,9 +171,16 @@ exports.deleteBook = async (req, res, next) => {
         message: errors.array()[0].msg,
       });
     }
-    res.json({
+    const book = await Book.findByIdAndDelete(req.params.id);
+    if (!book) {
+      res.status(404).json({
+        status: "error",
+        message: "Book with this ID does not exist",
+      });
+    }
+    res.status(204).json({
       status: "success",
-      user: req.user,
+      book: null,
     });
   } catch (err) {
     //TODO

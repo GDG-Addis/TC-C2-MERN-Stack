@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+const mongoosePaginate = require("mongoose-paginate");
 /**
  * Schema for storing book
  *  * Name - book name
@@ -21,7 +21,7 @@ const schema = new mongoose.Schema(
       type: String,
       default: "default.png",
     },
-    author: {
+    creator: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
@@ -40,6 +40,8 @@ const schema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+schema.plugin(mongoosePaginate);
 
 const Book = mongoose.model("Book", schema);
 
