@@ -1,0 +1,9 @@
+.quill {
+  width: 700px;
+  margin: 0 auto;
+}
+
+.ql-container {
+  min-height: 75vh;
+  background-color: #fff;
+}
