@@ -1,11 +1,25 @@
-import { Card, Form, Input, Button, Typography } from "antd";
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { Card, Form, Input, Button, Typography, Alert } from "antd";
+import { Link, useHistory } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { loginAsync } from "../../store/user/action";
 
 const Login = () => {
+  const dispatch = useDispatch();
+  const history = useHistory();
+  const { loginLoading, loginError, token } = useSelector(
+    (state) => state.user
+  );
+
+  useEffect(() => {
+    if (token) {
+      history.push("/");
+    }
+  }, [token]);
+
   const handleSubmit = (values) => {
-    /**
-     * TODO: Login
-     */
+    const { email, password } = values;
+    dispatch(loginAsync(email, password));
   };
 
   return (
@@ -19,6 +33,18 @@ const Login = () => {
     >
       <Card style={{ width: "500px" }}>
         <h1 style={{ textAlign: "center" }}>Login</h1>
+        {loginError && loginError.response ? (
+          <Alert
+            message={loginError.response.data.message}
+            type="error"
+            closable
+            style={{
+              marginTop: 5,
+              marginBottom: 5,
+            }}
+          />
+        ) : null}
+
         <Form initialValues={{}} onFinish={handleSubmit}>
           <Form.Item
             name="email"
@@ -45,6 +71,8 @@ const Login = () => {
                 type="primary"
                 htmlType="submit"
                 style={{ width: "200px" }}
+                loading={loginLoading}
+                disabled={loginLoading}
               >
                 Login
               </Button>
