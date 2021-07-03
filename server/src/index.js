@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
 const path = require("path");
+const cors = require("cors");
 
 const userRouter = require("./routes/user");
 const bookRouter = require("./routes/book");
@@ -32,6 +33,7 @@ if (process.env.NODE_ENV == "development") {
   app.use(morgan("dev"));
 }
 
+app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "../public")));
 
