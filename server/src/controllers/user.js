@@ -90,10 +90,17 @@ exports.serachUser = async (req, res, next) => {
   try {
     const regex = new RegExp(req.query.q);
     const users = await User.find({
-      email: {
-        $regex: regex,
-        $options: "si",
-      },
+      $and: [
+        {
+          email: {
+            $regex: regex,
+            $options: "si",
+          },
+        },
+        {
+          _id: { $neq: req.user._id },
+        },
+      ],
     });
     res.status(200).json({
       status: "success",

@@ -1,8 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Modal, Form, Input, Button, Upload, Typography, message } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
+import {
+  createBookAsync,
+  clearCreateBookSuccess,
+} from "../../store/book/actions";
+
 const AddBook = ({ isOpen, onClose }) => {
+  const dispatch = useDispatch();
+  const { createBookLoading, createBookError, createBookSuccess } = useSelector(
+    (state) => state.book
+  );
   const [form, setForm] = useState({
     file: null,
     fileList: [],
@@ -12,6 +22,14 @@ const AddBook = ({ isOpen, onClose }) => {
     previewImage: "",
     previewTitle: "",
   });
+
+  useEffect(() => {
+    if (createBookSuccess) {
+      message.success("Book created successfuly");
+      onClose();
+      dispatch(clearCreateBookSuccess());
+    }
+  }, [createBookSuccess]);
 
   const handleChange = ({ fileList, file }) =>
     setForm({ ...form, file, fileList });
@@ -44,14 +62,17 @@ const AddBook = ({ isOpen, onClose }) => {
     );
   };
   const handleSubmit = (values) => {
+    const { name, description } = values;
     if (!form.file) {
       message.error("Book cover photo is required");
     } else if (!isJpgOrPng(form.file)) {
       message.error("Book cover can only be JPG/PNG file!");
     } else {
-      /**
-       * TODO: Add Book
-       */
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("description", description);
+      formData.append("img", form.file);
+      dispatch(createBookAsync(formData));
     }
   };
 
@@ -115,6 +136,8 @@ const AddBook = ({ isOpen, onClose }) => {
                 type="primary"
                 htmlType="submit"
                 style={{ width: "150px" }}
+                disabled={createBookLoading}
+                loading={createBookLoading}
               >
                 Submit
               </Button>

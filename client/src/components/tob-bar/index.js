@@ -1,11 +1,13 @@
 import { Typography, Avatar, Space, Menu, Dropdown } from "antd";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import { logOut } from "../../store/user/action";
 
 const TopBar = () => {
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.user);
   const onLogOut = () => {
-    /**
-     * TODO: Handle Logout
-     */
+    dispatch(logOut());
   };
   return (
     <div
@@ -29,8 +31,8 @@ const TopBar = () => {
       >
         <div style={{ display: "flex", flexDirection: "row" }}>
           <Space direction="horizontal" size="middle">
-            <Typography.Text>John</Typography.Text>
-            <Avatar size="default">J</Avatar>
+            <Typography.Text>{user.firstName}</Typography.Text>
+            <Avatar size="default">{user.firstName[0]}</Avatar>
           </Space>
         </div>
       </Dropdown>

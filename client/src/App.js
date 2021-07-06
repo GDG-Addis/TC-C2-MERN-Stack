@@ -8,22 +8,23 @@ import SignUpPage from "./pages/sign-up";
 import HomePage from "./pages/home";
 import CollaborationPage from "./pages/collaboration";
 import NotFoundPage from "./pages/not-found";
+import GuardedRoute from "./components/guarded-route";
 
 const App = () => {
   return (
     <Switch>
-      <Route exact path="/">
+      <GuardedRoute exact path="/">
         <HomePage />
-      </Route>
+      </GuardedRoute>
       <Route path="/login">
         <LoginPage />
       </Route>
       <Route path="/sign-up">
         <SignUpPage />
       </Route>
-      <Route path="/books/:id/edit">
+      <GuardedRoute path="/books/:id/edit">
         <CollaborationPage />
-      </Route>
+      </GuardedRoute>
       <Route path="*">
         <NotFoundPage />
       </Route>

@@ -1,11 +1,25 @@
-import { Card, Form, Input, Button, Typography } from "antd";
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { Card, Form, Input, Button, Typography, Alert } from "antd";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useHistory } from "react-router-dom";
+import { signUpAsync } from "../../store/user/action";
 
 const SignUp = () => {
+  const dispatch = useDispatch();
+  const history = useHistory();
+  const { signUpLoading, signUpError, token } = useSelector(
+    (state) => state.user
+  );
+
+  useEffect(() => {
+    if (token) {
+      history.push("/");
+    }
+  }, [token]);
+
   const handleSubmit = (values) => {
-    /**
-     * TODO: Signup
-     */
+    const { firstName, lastName, email, password } = values;
+    dispatch(signUpAsync(firstName, lastName, email, password));
   };
 
   return (
@@ -19,6 +33,17 @@ const SignUp = () => {
     >
       <Card style={{ width: "500px" }}>
         <h1 style={{ textAlign: "center" }}>Sign Up</h1>
+        {signUpError && signUpError.response ? (
+          <Alert
+            message={signUpError.response.data.message}
+            type="error"
+            closable
+            style={{
+              marginTop: 5,
+              marginBottom: 5,
+            }}
+          />
+        ) : null}
         <Form initialValues={{}} onFinish={handleSubmit}>
           <Form.Item
             name="firstName"
@@ -63,6 +88,8 @@ const SignUp = () => {
                 type="primary"
                 htmlType="submit"
                 style={{ width: "200px" }}
+                disabled={signUpLoading}
+                loading={signUpLoading}
               >
                 Sign Up
               </Button>
