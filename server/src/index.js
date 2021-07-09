@@ -3,7 +3,9 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
 const path = require("path");
+const http = require("http");
 const cors = require("cors");
+const socket = require("socket.io");
 
 const userRouter = require("./routes/user");
 const bookRouter = require("./routes/book");
@@ -11,6 +13,13 @@ const bookRouter = require("./routes/book");
 dotenv.config();
 
 const app = express();
+
+const server = http.createServer(app);
+const io = socket(server, {
+  cors: {
+    allowed: "*",
+  },
+});
 
 /**
  * Connection to the database
@@ -44,6 +53,19 @@ app.use(express.static(path.join(__dirname, "../public")));
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/books", bookRouter);
 
+/**
+ * Socket
+ */
+
+io.on("connection", (socket) => {
+  socket.on("join", (id) => {
+    socket.join(id);
+    socket.on("send-change", (data) => {
+      socket.broadcast.to(id).emit("receive-change", data);
+    });
+  });
+});
+
 app.use("*", (req, res, next) => {
   res.status(400).json({
     status: "error",
@@ -52,6 +74,6 @@ app.use("*", (req, res, next) => {
 });
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Server is running at port ${port}`);
 });

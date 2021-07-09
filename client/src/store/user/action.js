@@ -47,6 +47,28 @@ export const signUpError = (error) => ({
   },
 });
 
+/**
+ * SERACH USER ACTION
+ * @returns ACTION
+ */
+export const searchUserStart = () => ({
+  type: UserActionTypes.USERS_SERACH_START,
+});
+
+export const searchUserSuccess = (users) => ({
+  type: UserActionTypes.USERS_SERACH_SUCCESS,
+  payload: {
+    users,
+  },
+});
+
+export const searchUserError = (error) => ({
+  type: UserActionTypes.USERS_SERACH_ERROR,
+  payload: {
+    error,
+  },
+});
+
 export const logOut = () => ({
   type: UserActionTypes.LOG_OUT,
 });
@@ -89,6 +111,32 @@ export const signUpAsync = (firstName, lastName, email, password) => {
       dispatch(signUpSuccess(response.data.user, response.data.token));
     } catch (err) {
       dispatch(signUpError(err));
+    }
+  };
+};
+
+export const searchUsersAsync = (query) => {
+  return async (dispatch, getState) => {
+    const {
+      user: { token },
+    } = getState();
+
+    try {
+      dispatch(searchUserStart());
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/users/search`,
+        {
+          params: {
+            q: query,
+          },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      dispatch(searchUserSuccess(response.data.users));
+    } catch (err) {
+      dispatch(searchUserError(err));
     }
   };
 };

@@ -98,7 +98,7 @@ exports.serachUser = async (req, res, next) => {
           },
         },
         {
-          _id: { $neq: req.user._id },
+          _id: { $ne: req.user._id },
         },
       ],
     });

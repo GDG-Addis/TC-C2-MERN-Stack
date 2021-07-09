@@ -2,13 +2,18 @@ import { BookActionTypes } from "./types";
 
 const INITIAL_STATE = {
   fetchBooksLoading: false,
+  fetchBookLoading: false,
   createBookLoading: false,
   createBookSuccess: false,
+  updateBookLoading: false,
   books: null,
+  book: {},
   page: 1,
   limit: 15,
   total: 0,
+  updateBookError: null,
   createBookError: null,
+  fetchBookError: null,
   fetchBooksError: null,
 };
 
@@ -35,7 +40,27 @@ const reducer = (state = INITIAL_STATE, action) => {
         fetchBooksLoading: false,
         fetchBooksError: action.payload.error,
       };
-
+    case BookActionTypes.BOOK_FETCH_START:
+      return {
+        ...state,
+        fetchBookLoading: true,
+        fetchBookError: null,
+      };
+    case BookActionTypes.BOOK_FETCH_SUCCESS:
+      return {
+        ...state,
+        fetchBookLoading: false,
+        book: {
+          ...state.book,
+          [action.payload.id]: action.payload.book,
+        },
+      };
+    case BookActionTypes.BOOK_FETCH_ERROR:
+      return {
+        ...state,
+        fetchBookLoading: false,
+        fetchBookError: action.payload.error,
+      };
     case BookActionTypes.BOOK_CREATE_START:
       return {
         ...state,
@@ -59,6 +84,28 @@ const reducer = (state = INITIAL_STATE, action) => {
       return {
         ...state,
         createBookSuccess: false,
+      };
+
+    case BookActionTypes.BOOK_UPDATE_START:
+      return {
+        ...state,
+        updateBookLoading: true,
+        updateBookError: null,
+      };
+    case BookActionTypes.BOOK_UPDATE_SUCCESS:
+      return {
+        ...state,
+        updateBookLoading: false,
+        book: {
+          ...state.book,
+          [action.payload.id]: action.payload.book,
+        },
+      };
+    case BookActionTypes.BOOK_UPDATE_ERROR:
+      return {
+        ...state,
+        updateBookLoading: false,
+        updateBookError: action.payload.error,
       };
     default:
       return state;

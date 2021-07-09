@@ -5,8 +5,11 @@ const authCookies = Cookies.get("AUTH") || JSON.stringify({});
 const INITIAL_STATE = {
   loginLoading: false,
   signUpLoading: false,
+  searchUsersLoading: false,
+  users: null,
   user: null,
   token: null,
+  searchUsersError: null,
   signUpError: null,
   loginError: null,
   ...JSON.parse(authCookies),
@@ -66,6 +69,25 @@ const reducer = (state = INITIAL_STATE, action) => {
         ...state,
         signUpLoading: false,
         signUpError: action.payload.error,
+      };
+
+    case UserActionTypes.USERS_SERACH_START:
+      return {
+        ...state,
+        searchUsersError: null,
+        searchUsersLoading: true,
+      };
+    case UserActionTypes.USERS_SERACH_SUCCESS:
+      return {
+        ...state,
+        searchUsersLoading: false,
+        users: action.payload.users,
+      };
+    case UserActionTypes.USERS_SERACH_ERROR:
+      return {
+        ...state,
+        searchUsersLoading: false,
+        searchUsersError: action.payload.error,
       };
 
     case UserActionTypes.LOG_OUT:
